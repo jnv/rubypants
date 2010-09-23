@@ -1,0 +1,11 @@
+de:
+  single_quote_open: '&#8218;'
+  single_quote_close: '&#8216;'
+  double_quote_open: '&#8222;'
+  double_quote_close: '&#8220;'
+  
+  en_dash: '&#8211;'
+  em_dash: '&#8212;'
+  
+  ellipsis: '&#8230;'
+  
