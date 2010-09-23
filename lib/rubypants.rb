@@ -205,7 +205,11 @@ class RubyPants < String
     super string
     @options = [*config]
     
-    I18n.locale ||= options.delete(:lang)
+    @locale ||= options.delete(:locale)
+  end
+  
+  def tt(symbol)
+    I18n.t(symbol, :locale => @locale)
   end
 
   # Apply SmartyPants transformations.
@@ -293,16 +297,16 @@ class RubyPants < String
             if t == "'"
               # Special case: single-character ' token
               if prev_token_last_char =~ /\S/
-                t = :single_quote_close.t
+                t = tt(:single_quote_close)
               else
-                t = :single_quote_open.t
+                t = tt(:single_quote_open)
               end
             elsif t == '"'
               # Special case: single-character " token
               if prev_token_last_char =~ /\S/
-                t = :double_quote_close.t
+                t = tt(:double_quote_close)
               else
-                t = :double_quote_open.t
+                t = tt(:double_quote_open)
               end
             else
               # Normal case:                  
@@ -344,7 +348,7 @@ class RubyPants < String
   # em-dash HTML entity.
   #
   def educate_dashes(str)
-    str.gsub(/--/, :em_dash.t)
+    str.gsub(/--/, tt(:em_dash))
   end
 
   # The string, with each instance of "<tt>--</tt>" translated to an
@@ -352,7 +356,7 @@ class RubyPants < String
   # em-dash HTML entity.
   #
   def educate_dashes_oldschool(str)
-    str.gsub(/---/, :em_dash.t).gsub(/--/, :en_dash.t)
+    str.gsub(/---/, tt(:em_dash)).gsub(/--/, tt(:en_dash))
   end
 
   # Return the string, with each instance of "<tt>--</tt>" translated
@@ -366,7 +370,7 @@ class RubyPants < String
   # Aaron Swartz for the idea.)
   #
   def educate_dashes_inverted(str)
-    str.gsub(/---/, :en_dash.t).gsub(/--/, :em_dash.t)
+    str.gsub(/---/, tt(:en_dash)).gsub(/--/, tt(:em_dash))
   end
 
   # Return the string, with each instance of "<tt>...</tt>" translated
@@ -374,21 +378,21 @@ class RubyPants < String
   # spaces between the dots.
   #
   def educate_ellipses(str)
-    str.gsub('...', :ellipsis.t).gsub('. . .', :ellipsis.t)
+    str.gsub('...', tt(:ellipsis)).gsub('. . .', tt(:ellipsis))
   end
 
   # Return the string, with "<tt>``backticks''</tt>"-style single quotes
   # translated into HTML curly quote entities.
   #
   def educate_backticks(str)
-    str.gsub("``", :double_quote_open.t).gsub("''", :double_quote_close.t)
+    str.gsub("``", tt(:double_quote_open)).gsub("''", tt(:double_quote_close))
   end
 
   # Return the string, with "<tt>`backticks'</tt>"-style single quotes
   # translated into HTML curly quote entities.
   #
   def educate_single_backticks(str)
-    str.gsub("`", :single_quote_open.t).gsub("'", :single_quote_close.t)
+    str.gsub("`", tt(:single_quote_open)).gsub("'", tt(:single_quote_close))
   end
 
   # Return the string, with "educated" curly quote HTML entities.
@@ -401,37 +405,37 @@ class RubyPants < String
     # Special case if the very first character is a quote followed by
     # punctuation at a non-word-break. Close the quotes by brute
     # force:
-    str.gsub!(/^'(?=#{punct_class}\B)/, :single_quote_close.t)
-    str.gsub!(/^"(?=#{punct_class}\B)/, :double_quote_close.t)
+    str.gsub!(/^'(?=#{punct_class}\B)/, tt(:single_quote_close))
+    str.gsub!(/^"(?=#{punct_class}\B)/, tt(:double_quote_close))
 
     # Special case for double sets of quotes, e.g.:
     #   <p>He said, "'Quoted' words in a larger quote."</p>
-    str.gsub!(/"'(?=\w)/, "#{:double_quote_open.t}#{:single_quote_open.t}")
-    str.gsub!(/'"(?=\w)/, "#{:single_quote_open.t}#{:double_quote_open.t}")
+    str.gsub!(/"'(?=\w)/, "#{tt(:double_quote_open)}#{tt(:single_quote_open)}")
+    str.gsub!(/'"(?=\w)/, "#{tt(:single_quote_open)}#{tt(:double_quote_open)}")
 
     # Special case for decade abbreviations (the '80s):
-    str.gsub!(/'(?=\d\ds)/, :single_quote_close.t)
+    str.gsub!(/'(?=\d\ds)/, tt(:single_quote_close))
 
     close_class = %![^\ \t\r\n\\[\{\(\-]!
-    dec_dashes = "#{:en_dash.t}|#{:em_dash.t}"
+    dec_dashes = "#{tt(:en_dash)}|#{tt(:em_dash)}"
     
     # Get most opening single quotes:
     str.gsub!(/(\s|&nbsp;|--|&[mn]dash;|#{dec_dashes}|&#x201[34];)'(?=\w)/,
-             "\\1#{:single_quote_open.t}")
+             "\\1#{tt(:single_quote_open)}")
     # Single closing quotes:
-    str.gsub!(/(#{close_class})'/, "\\1#{:single_quote_close.t}")
-    str.gsub!(/'(\s|s\b|$)/, "#{:single_quote_close.t}\\1")
+    str.gsub!(/(#{close_class})'/, "\\1#{tt(:single_quote_close)}")
+    str.gsub!(/'(\s|s\b|$)/, "#{tt(:single_quote_close)}\\1")
     # Any remaining single quotes should be opening ones:
-    str.gsub!(/'/, :single_quote_open.t)
+    str.gsub!(/'/, tt(:single_quote_open))
 
     # Get most opening double quotes:
     str.gsub!(/(\s|&nbsp;|--|&[mn]dash;|#{dec_dashes}|&#x201[34];)"(?=\w)/,
-             "\\1#{:double_quote_open.t}")
+             "\\1#{tt(:double_quote_open)}")
     # Double closing quotes:
-    str.gsub!(/(#{close_class})"/, "\\1#{:double_quote_close.t}")
-    str.gsub!(/"(\s|s\b|$)/, "#{:double_quote_close.t}\\1")
+    str.gsub!(/(#{close_class})"/, "\\1#{tt(:double_quote_close)}")
+    str.gsub!(/"(\s|s\b|$)/, "#{tt(:double_quote_close)}\\1")
     # Any remaining quotes should be opening ones:
-    str.gsub!(/"/, :double_quote_open.t)
+    str.gsub!(/"/, tt(:double_quote_open))
 
     str
   end
@@ -443,16 +447,16 @@ class RubyPants < String
   #
   def stupefy_entities(str)
     str.
-      gsub(:en_dash.t, '-').      # en-dash
-      gsub(:em_dash.t, '--').     # em-dash
+      gsub(tt(:en_dash), '-').                # en-dash
+      gsub(tt(:em_dash), '--').               # em-dash
       
-      gsub(:single_quote_open.t, "'").      # open single quote
-      gsub(:single_quote_close.t, "'").     # close single quote
+      gsub(tt(:single_quote_open), "'").      # open single quote
+      gsub(tt(:single_quote_close), "'").     # close single quote
       
-      gsub(:double_quote_open.t, '"').      # open double quote
-      gsub(:double_quote_close.t, '"').     # close double quote
+      gsub(tt(:double_quote_open), '"').      # open double quote
+      gsub(tt(:double_quote_close), '"').     # close double quote
       
-      gsub(:ellipsis.t, '...')     # ellipsis
+      gsub(tt(:ellipsis), '...')              # ellipsis
   end
 
   # Return an array of the tokens comprising the string. Each token is
