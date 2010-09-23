@@ -1,5 +1,6 @@
 # Rakefile for rubypants  -*-ruby-*-
 require 'rake/rdoctask'
+require 'rake/testtask'
 require 'rake/gempackagetask'
 
 
@@ -10,10 +11,11 @@ desc "Do predistribution stuff"
 task :predist => [:doc]
 
 
-desc "Run all the tests"
-task :test do
-  ruby 'test/test_rubypants.rb'
+Rake::TestTask.new(:test) do |t|
+  t.pattern = "#{File.dirname(__FILE__)}/test/all.rb"
+  t.verbose = true
 end
+Rake::Task['test'].comment = "Run all rubypants tests"
 
 desc "Make an archive as .tar.gz"
 task :dist => :test do
