@@ -4,7 +4,7 @@ module RubyPants
     MINOR = 3
     TINY  = 0
   
-    ARRAY = [MAJOR, MINOR, TINY, REVISION].compact
+    ARRAY = [MAJOR, MINOR, TINY].compact
     STRING = ARRAY.join('.')
     
     def self.to_a; ARRAY end
