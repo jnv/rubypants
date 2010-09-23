@@ -2,6 +2,7 @@
 
 $: << File.expand_path('../lib', __FILE__)
 require 'rubypants/version'
+require 'rake'
 
 spec = Gem::Specification.new do |s|
   s.name = 'rubypants'
@@ -15,7 +16,7 @@ Movable Type, Blosxom, and BBEdit that easily translates plain ASCII
 punctuation characters into "smart" typographic punctuation HTML
 entities.
   EOF
-  s.files = FileList['lib/**/*rb', 'README', 'Rakefile'].to_a
+  s.files = FileList['lib/**/*rb', 'init.rb', 'README', 'Rakefile'].to_a
   s.test_files = Dir.glob('test/*.rb')
   s.extra_rdoc_files = ["README"]
   s.rdoc_options = ["--main", "README"]
