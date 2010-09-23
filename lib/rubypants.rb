@@ -175,6 +175,23 @@
 # Christian Neukirchen:: http://kronavita.de/chris
 #
 
+require 'rubygems'
+require 'i18n'
+
+# use English quoting style by default
+I18n.default_locale ||= 'en'
+
+class Symbol
+  def t(params = {})
+    I18n.t(self, params)
+  end
+end
+
+class String
+  def t(params = {})
+    I18n.t(self.to_s, params)
+  end
+end
 
 class RubyPants < String
   VERSION = "0.2"
@@ -204,9 +221,11 @@ class RubyPants < String
   # <tt>:stupefy</tt>       :: translate RubyPants HTML entities
   #                            to their ASCII counterparts.
   #
-  def initialize(string, options=[2])
+  def initialize(string, config=[2], options={})
     super string
-    @options = [*options]
+    @options = [*config]
+    
+    I18n.locale ||= options.delete(:lang)
   end
 
   # Apply SmartyPants transformations.
@@ -294,9 +313,9 @@ class RubyPants < String
             if t == "'"
               # Special case: single-character ' token
               if prev_token_last_char =~ /\S/
-                t = "&#8217;"
+                t = :single_quote_close.t
               else
-                t = "&#8216;"
+                t = :single_quote_left.t
               end
             elsif t == '"'
               # Special case: single-character " token
@@ -389,7 +408,7 @@ class RubyPants < String
   # translated into HTML curly quote entities.
   #
   def educate_single_backticks(str)
-    str.gsub("`", '&#8216;').gsub("'", '&#8217;')
+    str.gsub("`", :single_quote_open.t).gsub("'", :single_quote_close.t)
   end
 
   # Return the string, with "educated" curly quote HTML entities.
@@ -402,28 +421,28 @@ class RubyPants < String
     # Special case if the very first character is a quote followed by
     # punctuation at a non-word-break. Close the quotes by brute
     # force:
-    str.gsub!(/^'(?=#{punct_class}\B)/, '&#8217;')
+    str.gsub!(/^'(?=#{punct_class}\B)/, :single_quote_close.t)
     str.gsub!(/^"(?=#{punct_class}\B)/, '&#8221;')
 
     # Special case for double sets of quotes, e.g.:
     #   <p>He said, "'Quoted' words in a larger quote."</p>
-    str.gsub!(/"'(?=\w)/, '&#8220;&#8216;')
-    str.gsub!(/'"(?=\w)/, '&#8216;&#8220;')
+    str.gsub!(/"'(?=\w)/, "&#8220;#{:single_quote_open.t}")
+    str.gsub!(/'"(?=\w)/, "#{:single_quote_open.t}&#8220;")
 
     # Special case for decade abbreviations (the '80s):
-    str.gsub!(/'(?=\d\ds)/, '&#8217;')
+    str.gsub!(/'(?=\d\ds)/, :single_quote_close.t)
 
     close_class = %![^\ \t\r\n\\[\{\(\-]!
     dec_dashes = '&#8211;|&#8212;'
     
     # Get most opening single quotes:
     str.gsub!(/(\s|&nbsp;|--|&[mn]dash;|#{dec_dashes}|&#x201[34];)'(?=\w)/,
-             '\1&#8216;')
+             "\1#{:single_quote_open.t}")
     # Single closing quotes:
-    str.gsub!(/(#{close_class})'/, '\1&#8217;')
-    str.gsub!(/'(\s|s\b|$)/, '&#8217;\1')
+    str.gsub!(/(#{close_class})'/, "\1#{:single_quote_close.t}")
+    str.gsub!(/'(\s|s\b|$)/, "#{:single_quote_close.t}\1")
     # Any remaining single quotes should be opening ones:
-    str.gsub!(/'/, '&#8216;')
+    str.gsub!(/'/, :single_quote_open.t)
 
     # Get most opening double quotes:
     str.gsub!(/(\s|&nbsp;|--|&[mn]dash;|#{dec_dashes}|&#x201[34];)"(?=\w)/,
@@ -447,8 +466,8 @@ class RubyPants < String
       gsub(/&#8211;/, '-').      # en-dash
       gsub(/&#8212;/, '--').     # em-dash
       
-      gsub(/&#8216;/, "'").      # open single quote
-      gsub(/&#8217;/, "'").      # close single quote
+      gsub(Regexp.new(:single_quote_open.t), "'").      # open single quote
+      gsub(Regexp.new(:single_quote_close.t), "'").      # close single quote
       
       gsub(/&#8220;/, '"').      # open double quote
       gsub(/&#8221;/, '"').      # close double quote
