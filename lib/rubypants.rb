@@ -344,7 +344,7 @@ class RubyPants < String
   # em-dash HTML entity.
   #
   def educate_dashes(str)
-    str.gsub(/--/, '&#8212;')
+    str.gsub(/--/, :em_dash.t)
   end
 
   # The string, with each instance of "<tt>--</tt>" translated to an
@@ -352,7 +352,7 @@ class RubyPants < String
   # em-dash HTML entity.
   #
   def educate_dashes_oldschool(str)
-    str.gsub(/---/, '&#8212;').gsub(/--/, '&#8211;')
+    str.gsub(/---/, :em_dash.t).gsub(/--/, :en_dash.t)
   end
 
   # Return the string, with each instance of "<tt>--</tt>" translated
@@ -366,7 +366,7 @@ class RubyPants < String
   # Aaron Swartz for the idea.)
   #
   def educate_dashes_inverted(str)
-    str.gsub(/---/, '&#8211;').gsub(/--/, '&#8212;')
+    str.gsub(/---/, :en_dash.t).gsub(/--/, :em_dash.t)
   end
 
   # Return the string, with each instance of "<tt>...</tt>" translated
@@ -413,7 +413,7 @@ class RubyPants < String
     str.gsub!(/'(?=\d\ds)/, :single_quote_close.t)
 
     close_class = %![^\ \t\r\n\\[\{\(\-]!
-    dec_dashes = '&#8211;|&#8212;'
+    dec_dashes = "#{:en_dash.t}|#{:em_dash.t}"
     
     # Get most opening single quotes:
     str.gsub!(/(\s|&nbsp;|--|&[mn]dash;|#{dec_dashes}|&#x201[34];)'(?=\w)/,
@@ -443,14 +443,14 @@ class RubyPants < String
   #
   def stupefy_entities(str)
     str.
-      gsub(/&#8211;/, '-').      # en-dash
-      gsub(/&#8212;/, '--').     # em-dash
+      gsub(:en_dash.t, '-').      # en-dash
+      gsub(:em_dash.t, '--').     # em-dash
       
       gsub(:single_quote_open.t, "'").      # open single quote
       gsub(:single_quote_close.t, "'").     # close single quote
       
       gsub(:double_quote_open.t, '"').      # open double quote
-      gsub(:double_quote_close.t, '"').      # close double quote
+      gsub(:double_quote_close.t, '"').     # close double quote
       
       gsub(/&#8230;/, '...')     # ellipsis
   end

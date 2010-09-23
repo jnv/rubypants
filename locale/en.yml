@@ -6,4 +6,7 @@ en:
   double_quote_open: '&#8220;'
   double_quote_close: '&#8220;'
   
+  en_dash: '&#8211;'
+  em_dash: '&#8212;'
+  
   
