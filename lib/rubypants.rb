@@ -175,27 +175,7 @@
 # Christian Neukirchen:: http://kronavita.de/chris
 #
 
-require 'rubygems'
-require 'i18n'
-
-# use English quoting style by default
-I18n.default_locale ||= 'en'
-
-class Symbol
-  def t(params = {})
-    I18n.t(self, params)
-  end
-end
-
-class String
-  def t(params = {})
-    I18n.t(self.to_s, params)
-  end
-end
-
 class RubyPants < String
-  VERSION = "0.2"
-
   # Create a new RubyPants instance with the text in +string+.
   #
   # Allowed elements in the options array:
@@ -315,14 +295,14 @@ class RubyPants < String
               if prev_token_last_char =~ /\S/
                 t = :single_quote_close.t
               else
-                t = :single_quote_left.t
+                t = :single_quote_open.t
               end
             elsif t == '"'
               # Special case: single-character " token
               if prev_token_last_char =~ /\S/
-                t = "&#8221;"
+                t = :double_quote_close.t
               else
-                t = "&#8220;"
+                t = :double_quote_open.t
               end
             else
               # Normal case:                  
@@ -401,7 +381,7 @@ class RubyPants < String
   # translated into HTML curly quote entities.
   #
   def educate_backticks(str)
-    str.gsub("``", '&#8220;').gsub("''", '&#8221;')
+    str.gsub("``", :double_quote_open.t).gsub("''", :double_quote_close.t)
   end
 
   # Return the string, with "<tt>`backticks'</tt>"-style single quotes
@@ -426,8 +406,8 @@ class RubyPants < String
 
     # Special case for double sets of quotes, e.g.:
     #   <p>He said, "'Quoted' words in a larger quote."</p>
-    str.gsub!(/"'(?=\w)/, "&#8220;#{:single_quote_open.t}")
-    str.gsub!(/'"(?=\w)/, "#{:single_quote_open.t}&#8220;")
+    str.gsub!(/"'(?=\w)/, "#{:double_quote_open.t}#{:single_quote_open.t}")
+    str.gsub!(/'"(?=\w)/, "#{:single_quote_open.t}#{:double_quote_open.t}")
 
     # Special case for decade abbreviations (the '80s):
     str.gsub!(/'(?=\d\ds)/, :single_quote_close.t)
@@ -446,12 +426,12 @@ class RubyPants < String
 
     # Get most opening double quotes:
     str.gsub!(/(\s|&nbsp;|--|&[mn]dash;|#{dec_dashes}|&#x201[34];)"(?=\w)/,
-             '\1&#8220;')
+             "\1#{:double_quote_open.t}")
     # Double closing quotes:
-    str.gsub!(/(#{close_class})"/, '\1&#8221;')
-    str.gsub!(/"(\s|s\b|$)/, '&#8221;\1')
+    str.gsub!(/(#{close_class})"/, "\1#{:double_quote_close.t}")
+    str.gsub!(/"(\s|s\b|$)/, "#{:double_quote_close.t}\1")
     # Any remaining quotes should be opening ones:
-    str.gsub!(/"/, '&#8220;')
+    str.gsub!(/"/, :double_quote_open.t)
 
     str
   end
@@ -466,11 +446,11 @@ class RubyPants < String
       gsub(/&#8211;/, '-').      # en-dash
       gsub(/&#8212;/, '--').     # em-dash
       
-      gsub(Regexp.new(:single_quote_open.t), "'").      # open single quote
-      gsub(Regexp.new(:single_quote_close.t), "'").      # close single quote
+      gsub(:single_quote_open.t, "'").      # open single quote
+      gsub(:single_quote_close.t, "'").     # close single quote
       
-      gsub(/&#8220;/, '"').      # open double quote
-      gsub(/&#8221;/, '"').      # close double quote
+      gsub(:double_quote_open.t, '"').      # open double quote
+      gsub(:double_quote_close.t, '"').      # close double quote
       
       gsub(/&#8230;/, '...')     # ellipsis
   end
