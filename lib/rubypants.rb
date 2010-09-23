@@ -332,12 +332,12 @@ class RubyPants < String
   #      \\    \"    \'    \.    \-    \`
   #
   def process_escapes(str)
-    str.gsub('\\\\', '&#92;').
-      gsub('\"', '&#34;').
-      gsub("\\\'", '&#39;').
-      gsub('\.', '&#46;').
-      gsub('\-', '&#45;').
-      gsub('\`', '&#96;')
+    str.gsub('\\\\', '&#92;').  # back slash
+      gsub('\"', '&#34;').      # double quotes
+      gsub("\\\'", '&#39;').    # single quote
+      gsub('\.', '&#46;').      # dot
+      gsub('\-', '&#45;').      # minus sign
+      gsub('\`', '&#96;')       # grave accent
   end
 
   # The string, with each instance of "<tt>--</tt>" translated to an
@@ -374,7 +374,7 @@ class RubyPants < String
   # spaces between the dots.
   #
   def educate_ellipses(str)
-    str.gsub('...', '&#8230;').gsub('. . .', '&#8230;')
+    str.gsub('...', :ellipsis.t).gsub('. . .', :ellipsis.t)
   end
 
   # Return the string, with "<tt>``backticks''</tt>"-style single quotes
@@ -402,7 +402,7 @@ class RubyPants < String
     # punctuation at a non-word-break. Close the quotes by brute
     # force:
     str.gsub!(/^'(?=#{punct_class}\B)/, :single_quote_close.t)
-    str.gsub!(/^"(?=#{punct_class}\B)/, '&#8221;')
+    str.gsub!(/^"(?=#{punct_class}\B)/, :double_quote_close.t)
 
     # Special case for double sets of quotes, e.g.:
     #   <p>He said, "'Quoted' words in a larger quote."</p>
@@ -452,7 +452,7 @@ class RubyPants < String
       gsub(:double_quote_open.t, '"').      # open double quote
       gsub(:double_quote_close.t, '"').     # close double quote
       
-      gsub(/&#8230;/, '...')     # ellipsis
+      gsub(:ellipsis, '...')     # ellipsis
   end
 
   # Return an array of the tokens comprising the string. Each token is
