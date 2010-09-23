@@ -417,19 +417,19 @@ class RubyPants < String
     
     # Get most opening single quotes:
     str.gsub!(/(\s|&nbsp;|--|&[mn]dash;|#{dec_dashes}|&#x201[34];)'(?=\w)/,
-             "\1#{:single_quote_open.t}")
+             "\\1#{:single_quote_open.t}")
     # Single closing quotes:
-    str.gsub!(/(#{close_class})'/, "\1#{:single_quote_close.t}")
-    str.gsub!(/'(\s|s\b|$)/, "#{:single_quote_close.t}\1")
+    str.gsub!(/(#{close_class})'/, "\\1#{:single_quote_close.t}")
+    str.gsub!(/'(\s|s\b|$)/, "#{:single_quote_close.t}\\1")
     # Any remaining single quotes should be opening ones:
     str.gsub!(/'/, :single_quote_open.t)
 
     # Get most opening double quotes:
     str.gsub!(/(\s|&nbsp;|--|&[mn]dash;|#{dec_dashes}|&#x201[34];)"(?=\w)/,
-             "\1#{:double_quote_open.t}")
+             "\\1#{:double_quote_open.t}")
     # Double closing quotes:
-    str.gsub!(/(#{close_class})"/, "\1#{:double_quote_close.t}")
-    str.gsub!(/"(\s|s\b|$)/, "#{:double_quote_close.t}\1")
+    str.gsub!(/(#{close_class})"/, "\\1#{:double_quote_close.t}")
+    str.gsub!(/"(\s|s\b|$)/, "#{:double_quote_close.t}\\1")
     # Any remaining quotes should be opening ones:
     str.gsub!(/"/, :double_quote_open.t)
 
@@ -452,7 +452,7 @@ class RubyPants < String
       gsub(:double_quote_open.t, '"').      # open double quote
       gsub(:double_quote_close.t, '"').     # close double quote
       
-      gsub(:ellipsis, '...')     # ellipsis
+      gsub(:ellipsis.t, '...')     # ellipsis
   end
 
   # Return an array of the tokens comprising the string. Each token is
