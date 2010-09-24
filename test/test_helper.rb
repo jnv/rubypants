@@ -6,5 +6,4 @@ $:.unshift File.expand_path(File.dirname(__FILE__))
 $:.uniq!
 
 require 'test/unit'
-require 'init'
 require 'rubypants'

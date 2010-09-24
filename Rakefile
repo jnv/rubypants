@@ -25,9 +25,9 @@ end
 
 desc "Generate RDoc documentation"
 Rake::RDocTask.new(:doc) do |rdoc|
-  rdoc.options << '--line-numbers --inline-source --all'
+  rdoc.options += %w(--line-numbers --inline-source --all)
   rdoc.rdoc_files.include 'README'
-  rdoc.rdoc_files.include 'rubypants.rb'
+  rdoc.rdoc_files.include 'lib'
 end
 
 Rake::GemPackageTask.new(eval(File.read("rubypants.gemspec"))) { |pkg| }
