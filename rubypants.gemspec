@@ -21,7 +21,7 @@ entities.
   s.rdoc_options = ["--main", "README"]
   s.rdoc_options.concat ['--line-numbers', '--inline-source', '--all']
   s.require_path = 'lib'
-  s.add_dependency('i18n', '~> 0.3.7')
+  s.add_dependency('i18n', '~> 0.6')
   
   s.authors = ["Christian Neukirchen", "Holger Just"]
 end
