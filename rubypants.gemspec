@@ -15,7 +15,7 @@ Movable Type, Blosxom, and BBEdit that easily translates plain ASCII
 punctuation characters into "smart" typographic punctuation HTML
 entities.
   EOF
-  s.files = FileList['lib/**/*rb', 'README', 'Rakefile'].to_a
+  s.files = Dir.glob('lib/**/*rb') + %w(README Rakefile)
   s.test_files = Dir.glob('test/*.rb')
   s.extra_rdoc_files = ["README"]
   s.rdoc_options = ["--main", "README"]
