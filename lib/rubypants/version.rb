@@ -1,4 +1,4 @@
-class RubyPants
+class RubyPants < String
   module VERSION
     MAJOR = 0
     MINOR = 3
